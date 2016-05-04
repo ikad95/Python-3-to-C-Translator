@@ -1,5 +1,4 @@
-while(True):
-	n=input()
-	if(n==42):
-		break
-	print(n)
+n=4
+if(n==4):
+	n="FOUR"
+print(n)

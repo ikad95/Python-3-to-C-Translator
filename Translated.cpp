@@ -7,18 +7,14 @@ using namespace std;
 
 int main()
 {
-	long long n;
+	string n;
 
-	while(True)
+	n=4;
+	if(n==4)
 	{
-		scanf("%lld",&n);
-		if(n==42)
-		{
-			break;
+		n="FOUR";
 	
-		}
-	printf("%lld",n);
-
 	}
+	cout<<n;
 	return 0;
 }

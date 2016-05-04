@@ -81,9 +81,9 @@ for i in inp:
                                 except:
                                         pass
                                 if(tt!="%s"):
-                                        res+=(tab+"printf("+"\"" +tt+ "\","+i[6:-2]+")" +';'+"\n") #i[6:-2] original
+                                        res+='\t'+(tab+"printf("+"\"" +tt+ "\","+i[6:-2]+")" +';'+"\n") #i[6:-2] original
                                 else:
-                                        res+=tab+"cout<<"+i[6:-2]+";\n"
+                                        res+='\t'+tab+"cout<<"+i[6:-2]+";\n"
                         else: #print('')
                                 res+=(tab+"printf("+"\"" +i[7:-3]+ "\")" +';'+"\n")
                 continue
