@@ -18,7 +18,7 @@ def idType(value):
 
 inp=open('toTranslate.py','r')
 out=open('Translated.cpp','w')
-out.write("#include <iostream>\n#include <vector>\n\nusing namespace std;\n\n")
+out.write("#include <iostream>\n#include <vector>\n#define True 1\n#define False 0\n\nusing namespace std;\n\n")
 
 loop=0
 ids={}
@@ -26,7 +26,9 @@ tab=''
 res=''
 linecount=0
 god=1
+
 for i in inp:
+        res+='\t'
         tabCount = i.count("\t")
         quotesCount=0
         spl= i.split("\"")
@@ -47,7 +49,7 @@ for i in inp:
                         
                 elif tabCount < loop: #if nesting ##dont trust
                         while tabCount < loop:
-                                res+=("\n"+tab[1:]+"}\n")
+                                res+=("\n\t"+tab[1:]+"}\n"+tab[1:-1])
                                 tab=tab[1:]
                                 loop-=1
         i="".join(i.strip())
@@ -90,7 +92,7 @@ for i in inp:
         #id creator and assignment and comparison start
         sp=i[:-1].replace(" ","")
         f=i
-        i=i.replace(" ","")     
+        i=i.replace(" ","")
         for x in range(len(sp)):
                 if sp[x]=='=':
                                 #ids(sp[:x])=idType((sp[x+1:-1]))
@@ -98,11 +100,16 @@ for i in inp:
                         if sp[x+1]=='=' or sp[x-1]=='!' or sp[x-1]=='<' or sp[x-1]=='>':
                                 #res+=tab+sp+";\n"
                                 break
-                        y=sp[:x].replace("*","")
-                        y=sp[:x].replace("%","")
-                        y=sp[:x].replace("/","")
-                        y=sp[:x].replace("-","")
-                        y=sp[:x].replace("+","")
+                        # handle x+=y type of events
+                        y= re.split(r'[*+-/%]',i[:x])		
+                        if len(y)!=1:
+                                res+=tab+i+";\n"
+                                break
+                        # handle x+=y type of events end
+                        y=y[0]
+                                
+
+                        print y
                         
                         #if(len(i[x+1:-1].split("*"))==2):
                         #       ids(i[:x])=idType(i[x+1:-1].split("*")[0])
@@ -166,7 +173,7 @@ for i in inp:
 
         #while loop start
         if i[:len('while')]=="while":
-                res+=tab+"while("+i[len('while')+1:-3]+")\n"+tab+"{\n"
+                res+=tab+"while("+i[len('while')+1:-3]+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 continue
@@ -178,7 +185,7 @@ for i in inp:
                 i=i[::-1]
                 i=i.replace(")","",1)
                 i=i[::-1]
-                res+=tab+"if("+i[len('if')+1:-2]+")\n"+tab+"{\n"
+                res+=tab+"if("+i[len('if')+1:-2]+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 i=i[len('if')+1:-2] #experimental
@@ -187,7 +194,7 @@ for i in inp:
                 i=i[::-1]
                 i=i.replace(")","",1)
                 i=i[::-1]
-                res+=tab+'else if('+i[len('elif')+1:-2]+')\n'+tab+"{\n"
+                res+=tab+'else if('+i[len('elif')+1:-2]+')\n\t'+tab+"{\n"
                 loop+=1
                 tab+='\t'
         if i[:len('else')] == "else":
@@ -195,7 +202,7 @@ for i in inp:
                 i=i[::-1]
                 i=i.replace(")","",1)
                 i=i[::-1]
-                res+=tab+"else"+i[len('else')+1:-2]+"\n"+tab+"{\n"
+                res+=tab+"else"+i[len('else')+1:-2]+"\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
         #if else statement end
@@ -205,7 +212,7 @@ for i in inp:
 
         #break & continue
         if i[:-1]=="break" or i[:-1]=="continue":
-                res+=tab+i[:-1]+";\n"+tab
+                res+=tab+i[:-1]+";\n"
         #break & continue end
 
     #special ops
@@ -219,21 +226,21 @@ for i in inp:
                 elif zzz[1][:len("append(")]=="append(":
                         res+=tab+zzz[0]+'.push_back('+zzz[1][len("append("):-1]+';\n'
         
-        except: pass                
-while i[0:len(tab)]!=tab:
-        res+=("\n"+tab[1:]+"}\n")
+        except: pass
+while loop!=0:
+        res+=("\n\t"+tab[1:]+"}\n")
         tab=tab[1:]
         loop-=1
-res+=("return 0;\n}\n")
+res+=("\treturn 0;\n}\n")
 
 out.write("int main()\n{\n")
 for key,value in ids.items():
         if value=='long long[]':
-                out.write("vector<long long> "+key+';\n')
+                out.write("\tvector<long long> "+key+';\n')
         elif value!='char':
-                out.write(value+" "+key+";\n")
+                out.write("\t"+value+" "+key+";\n")
         else:
-                out.write(value+" "+key+"[BUFF];\n")
+                out.write("\t"+value+" "+key+"[BUFF];\n")
 out.write('\n')
 out.write(res)
 out.close()

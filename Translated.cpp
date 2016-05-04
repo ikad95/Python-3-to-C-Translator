@@ -12,7 +12,7 @@ int main()
 	while(True)
 	{
 		scanf("%lld",&n);
-		if(n!=42)
+		if(n==42)
 		{
 			break;
 	
