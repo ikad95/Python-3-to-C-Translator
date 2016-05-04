@@ -1,4 +1,5 @@
-j=111
-n=input(12)
-for i in range(n):
-	print(i*j)
+while(True):
+	n=input()
+	if(n!=42):
+		break
+	print(n)
