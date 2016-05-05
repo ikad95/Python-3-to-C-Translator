@@ -1,3 +1,3 @@
-for i in range(100):
-	for j in range(1000):
-		print(i)
+n=input()
+for i in range(n):
+	print(i*i)

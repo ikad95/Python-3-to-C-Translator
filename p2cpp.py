@@ -19,7 +19,7 @@ def vmapX(x):
          #       return 0
         pl=re.split('\(|\)',x)
         pl=[z for z in pl if z][0]
-        print x
+        #print x
         if str(x).isdigit() or x[0]=="\"" or x[0]=="\'" :
                 return str(x)
         try:
@@ -28,41 +28,43 @@ def vmapX(x):
                 return 0
 def parseExp(exp):
         p=''
-        op = re.split('[a-zA-Z0-9]|==|<=|<|!=|>|>=|\"',exp)
+        n=re.split('[(|)|+|\-|\*\*|/|%|\*]',exp)
+        n="".join(n)
+        op = re.split('[a-zA-Z0-9]|==|<=|<|!=|>|>=|\"',n)
         op=[x for x in op if x]
-        print op
         exp = re.split(" && | \|\| | ^ ",exp)
-        i=0
+        iii=0
         for x in exp:
                 tokens=re.split('(==|<=|<|!=|>|>=)',x)
-                p+= vmapX(tokens[0])+tokens[1]+vmapX(tokens[2])
-                if(i<len(exp)-1):
-                        p+=op[i]
-                        i+=1
+                p+= parseArith(tokens[0])+tokens[1]+parseArith(tokens[2])
+                if(iii<len(exp)-1):
+                        p+=op[iii]
+                        iii+=1
         return p
 def parseArith(exp):
+        if(str(exp).isdigit()):
+                return str(exp)
         p=''
         exp="".join(exp.split())
-        n=re.split('[(|)|+|\-|\*\*|/|%|\Intel*]',exp)
+        n=re.split('[(|)|+|\-|\*\*|/|%|\*]',exp)
         op=re.split('[a-zA-Z0-9.]|"',exp)
         op=[x for x in op if x]
-        print op, "yo"
-        i=0
-        if(op[0]!='' and '(' in op[0]):
-            print("brac")
-            p+=op[0]
-            op=op[1:]
-            print op
+        iii=0
+        try:
+                if(op[0]!='' and '(' in op[0]):
+                    p+=op[0]
+                    op=op[1:]
+        except:
+                pass
         n = [z for z in n if z]
-        print n
         for x in n:
                 if(str(vmapX(x)).isdigit()):
                         p+=x
                 else:
                         p+=str(vmapX(x))
-                if(i<len(n)-1):
-                        p+=op[i]
-                        i+=1
+                if(iii<len(n)-1):
+                        p+=op[iii]
+                        iii+=1
         return p
 inp=open('toTranslate.py','r')
 out=open('Translated.cpp','w')
@@ -95,11 +97,7 @@ for i in inp:
                 
         #indentation management start
         if loop>=1:
-                if i[:len(tab)]==tab: #if no nesting
-                        i="".join(i.strip())
-                        i+='\n'
-                        
-                elif tabCount < loop: #if nesting ##dont trust
+                if tabCount < loop: #if nesting ##dont trust
                         while tabCount < loop:
                                 res+=("\n\t"+tab[1:]+"}\n\t"+tab[1:-1])
                                 tab=tab[1:]
@@ -110,8 +108,6 @@ for i in inp:
 
         #print start
         tt=''
-        
-
         if i[:len('print')]=="print":
                 if(i[len("print")]==" "):
                         i=i.replace(" ","",1)
@@ -136,14 +132,17 @@ for i in inp:
                                 if(tt!="%s"):
                                         if vmapX(i[6:-2]):
                                                 #long longs and doubles
-                                                res+=(tab+"printf("+"\"" +tt+ "\","+vmapX(i[6:-2])+")" +';'+"\n") 
+                                                res+=(tab+"printf("+"\"" +tt+ "\","+vmapX(i[6:-2])+")" +';'+"\n")
                                         else:
                                                 #arrays
                                                 arr=(i[6:-2]).split('[')
+                                                if(len(arr)==1):
+                                                        res+=tab+"print(\"%lld\","+parseArith(i[6:-2])+");\n"
+                                                        continue
                                                 res+=tab+"cout<<"+vmapX(arr[0])+"["+vmapX(arr[1].split(']')[0])+"];\n"
                                 else:
                                         #strings
-                                        res+=tab+"cout<<"+vmap[i[6:-3]]+";\n"
+                                        res+=tab+"cout<<"+parseArith(i[6:-2])+";\n"
                         else: #print('')
                                 res+=(tab+"printf("+"\"" +i[7:-3]+ "\")" +';'+"\n")
                 if(addNl==1):
@@ -161,9 +160,9 @@ for i in inp:
                                 #res+=tab+sp+";\n"
                                 break
                         # handle x+=y type of events
-                        y= re.split(r'[*+-/%]',i[:x])		
-                        if len(y)!=1:
-                                res+=tab+i+";\n"
+                        y= re.split(r'[*+-/%]',i[:x])
+                        if len(y)>1:
+                                res+=tab+vmap[y[0]]+i[x-1]+"="+parseArith(i[x+1:-1])+";\n"
                                 break
                         # handle x+=y type of events end
                         y=y[0]
@@ -183,6 +182,10 @@ for i in inp:
                                 ids[i[:x]+"_dou"]='double'
                                 vmap[i[:x]]=i[:x]+"_dou"
                                 res+=tab+"scanf(\"%f\",&"+ vmap[i[:x]]+");\n"
+                        elif i[x-1]=="]":
+                                m=i.split('[')
+                                n=m[1].split(']')
+                                res+=tab+vmapX(m[0])+"["+parseArith(n[0])+"]"+n[1][:-1]+";\n"
                         else:
                                 if i[x+1]=='\'' or i[x+1]=='\"':
                                         if i[x-1]!='+':
@@ -201,7 +204,6 @@ for i in inp:
                                         pl = re.split(r'[*+-/%]',pl)[0]
                                         if vmap[pl] in ids:
                                                 if ids[vmap[pl]]=='double' or ids[vmap[pl]]=='long long' or ids[vmap[pl]]=='string':
-                                                        print i[:x]
                                                         vmap[i[:x]]=i[:x]+"_"+ids[vmap[pl]][:3]
                                                         ids[vmap[i[:x]]]=ids[vmap[pl]]
                                                         #print parseArith(i[x+1:-1])
@@ -226,15 +228,15 @@ for i in inp:
                         ids[vmap[f[1]]]=ids[vmap[f[3][6:-3]]]
                 else:
                         vmap[f[1]]=f[1]+"_lon"
-                        ids[vmap[f[1]]]=str(idType(f[3][6:-3]))
-                res+=(tab+"for("+vmap[f[1]]+"=0;"+vmap[f[1]]+"<"+vmapX(f[3][6:-3])+";"+vmap[f[1]]+"++)"+"\n"+tab+"\t{\n")
+                        ids[vmap[f[1]]]="long long"#str(idType(f[3][6:-3]))
+                res+=(tab+"for("+vmap[f[1]]+"=0;"+vmap[f[1]]+"<"+parseArith(f[3][6:-3])+";"+vmap[f[1]]+"++)"+"\n"+tab+"\t{\n")
                 loop+=1
                 tab+='\t'
         #for loop end
 
         #while loop start
         if i[:len('while')]=="while":
-                res+=tab+"while("+i[len('while')+1:-3]+")\n\t"+tab+"{\n"
+                res+=tab+"while("+parseExp((i[len('while('):-3]))+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 continue
@@ -248,7 +250,7 @@ for i in inp:
                 i=i[::-1]
                 #print i[len('if('):-2]
                 #print parseExp(i[len('if('):-2])
-                res+="\t"+tab+"if("+parseExp(i[len('if('):-2])+")\n\t"+tab+"{\n"
+                res+=tab+"if("+parseExp(i[len('if('):-2])+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 i=i[len('if')+1:-2] #experimental
@@ -282,9 +284,9 @@ for i in inp:
 
         zzz=i.split('.')
         try:
-                if zzz[1][:-1]=="append(int(input()))":
+                if zzz[1][:-1]=="append(input())":
                         ids['temp']='long long'
-                        res+=tab+"scanf(\"%lld\",&temp);\n"+tab+zzz[0]+'.push_back(temp);\n'
+                        res+=tab+"scanf(\"%lld\",&temp);\n\t"+tab+zzz[0]+'.push_back(temp);\n'
                 elif zzz[1][:len("append(")]=="append(":
                         res+=tab+vmapX(zzz[0])+'.push_back('+vmapX(zzz[1][len("append("):-2])+');\n'
         
