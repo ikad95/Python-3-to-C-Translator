@@ -7,14 +7,27 @@ using namespace std;
 
 int main()
 {
-	long long n_lon;
-	long long i_lon;
+	double num_dou;
 
 
-	scanf("%lld",&n_lon);
-	for(i_lon=0;i_lon<n_lon;i_lon++)
+			scanf("%f",&num_dou);
+	if(num_dou>=0)
 	{
-		print("%lld",i_lon*i_lon);
+		if(num_dou==0)
+		{
+			printf("Zero");
+	
+		}
+		else
+		{
+			printf("Positive number");
+	
+		}
+	
+	}
+	else
+	{
+		printf("Negative number");
 
 	}
 	return 0;
