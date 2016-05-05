@@ -1,3 +1,5 @@
+NEWS!!! Dynamic typing is added!!!!!!!
+
 Note:
 	Use python3 syntax, ie print("hello") instead of print "hello" and while(i<5): instead of while i<5:
 	Use tab instead of space to indent. So don't write in IDLE as it uses whitespace. Sublime Text or any other good editor will work
@@ -10,8 +12,8 @@ How to use:
 	voila! The C++ code should be in Translated.cpp file
 
 
-
-In the future :
+Change Log 1:
+In the future : (ADDED NOW!)
 Dynamic type checking is awesome, but C++ doesn't allow that!!
 The process of adding dynamic type checking support has already started! Until then be safe!
 
@@ -41,21 +43,12 @@ int main()
 	cout<<n_str;
 	return 0;
 }
+ 
+Change log 2:
+sort in increasing and decreasing order added!
+if a is a list use a.sort() and a.sort(reverse=True) #standard python function
 
-Currently as of today the C++ code looks like this -
 
-int main()
-{
-	string n;
-
-	n=4;
-	if(n==4)
-	{
-		n="FOUR";
-	
-	}
-	cout<<n;
-	return 0;
-}
-
-Clearly this won't compile! It's initializing n with its last data type!  
+In the future:
+string formatting needs a lot of work!
+will leave it for now as multiple print() statement can be uses as of now

@@ -68,7 +68,7 @@ def parseArith(exp):
         return p
 inp=open('toTranslate.py','r')
 out=open('Translated.cpp','w')
-out.write("#include <iostream>\n#include <vector>\n#define True 1\n#define False 0\n\nusing namespace std;\n\n")
+out.write("#include <iostream>\n#include <vector>\n#include <algorithm>\n#define True 1\n#define False 0\n\nusing namespace std;\n\n")
 
 loop=0
 ids={}
@@ -105,7 +105,25 @@ for i in inp:
         i="".join(i.strip())
         i+='\n'
         #indentation management end
+        
+        #special ops
 
+        zzz=i.split('.')
+        try:
+                if zzz[1][:-1]=="append(input())":
+                        ids['temp']='long long'
+                        res+=tab+"scanf(\"%lld\",&temp);\n\t"+tab+zzz[0]+'.push_back(temp);\n'
+                elif zzz[1][:len("append(")]=="append(":
+                        res+=tab+vmapX(zzz[0])+'.push_back('+parseArith(zzz[1][len("append("):-2])+');\n'
+                elif zzz[1][:len('sort(reverse=True)')]=="sort(reverse=True)":
+                        res+=tab+"sort("+vmapX(zzz[0])+".end(),"+vmapX(zzz[0])+".begin());\n"
+                elif zzz[1][:len('sort(')]=="sort(":
+                        res+=tab+"sort("+vmapX(zzz[0])+".begin(),"+vmapX(zzz[0])+".end());\n"
+                continue
+                          
+        except: pass
+        #special ops end
+        
         #print start
         tt=''
         if i[:len('print')]=="print":
@@ -280,18 +298,7 @@ for i in inp:
                 res+=tab+i[:-1]+";\n"
         #break & continue end
 
-        #special ops
-
-        zzz=i.split('.')
-        try:
-                if zzz[1][:-1]=="append(input())":
-                        ids['temp']='long long'
-                        res+=tab+"scanf(\"%lld\",&temp);\n\t"+tab+zzz[0]+'.push_back(temp);\n'
-                elif zzz[1][:len("append(")]=="append(":
-                        res+=tab+vmapX(zzz[0])+'.push_back('+vmapX(zzz[1][len("append("):-2])+');\n'
         
-        except: pass
-        #special ops end
         
 while loop!=0:
         res+=("\n\t"+tab[1:]+"}\n")

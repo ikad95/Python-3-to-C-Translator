@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #define True 1
 #define False 0
 
@@ -7,28 +8,18 @@ using namespace std;
 
 int main()
 {
-	double num_dou;
+	long long n_lon;
+	long long i_lon;
+	vector<long long> a_vec;
 
 
-			scanf("%f",&num_dou);
-	if(num_dou>=0)
+	
+	n_lon=50;
+	for(i_lon=0;i_lon<n_lon;i_lon++)
 	{
-		if(num_dou==0)
-		{
-			printf("Zero");
-	
-		}
-		else
-		{
-			printf("Positive number");
-	
-		}
+		a_vec.push_back(100-n_lon);
 	
 	}
-	else
-	{
-		printf("Negative number");
-
-	}
+	sort(a_vec.end(),a_vec.begin());
 	return 0;
 }
