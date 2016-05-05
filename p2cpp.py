@@ -28,6 +28,7 @@ def vmapX(x):
                 return 0
 def parseExp(exp):
         p=''
+        print exp
         n=re.split('[(|)|+|\-|\*\*|/|%|\*]',exp)
         n="".join(n)
         op = re.split('[a-zA-Z0-9]|==|<=|<|!=|>|>=|\"',n)
@@ -36,7 +37,10 @@ def parseExp(exp):
         iii=0
         for x in exp:
                 tokens=re.split('(==|<=|<|!=|>|>=)',x)
-                p+= parseArith(tokens[0])+tokens[1]+parseArith(tokens[2])
+                if(len(tokens)==1):
+                        p+=parseArith(tokens[0])
+                else:
+                        p+= parseArith(tokens[0])+tokens[1]+parseArith(tokens[2])
                 if(iii<len(exp)-1):
                         p+=op[iii]
                         iii+=1
@@ -268,7 +272,7 @@ for i in inp:
                 i=i[::-1]
                 #print i[len('if('):-2]
                 #print parseExp(i[len('if('):-2])
-                res+=tab+"if("+parseExp(i[len('if('):-2])+")\n\t"+tab+"{\n"
+                res+=tab+"if("+parseArith(i[len('if('):-2])+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 i=i[len('if')+1:-2] #experimental

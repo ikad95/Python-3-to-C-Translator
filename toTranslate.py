@@ -1,5 +1,6 @@
-a=[]
-n=50
-for i in range(n):
-	a.append(100-n)
-a.sort(reverse=True)
+n=input()
+while(n and n>4):
+	if(n<10 and n<1):
+		break
+	print(n)
+	n-=1

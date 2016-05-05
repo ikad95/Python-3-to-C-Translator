@@ -9,17 +9,19 @@ using namespace std;
 int main()
 {
 	long long n_lon;
-	long long i_lon;
-	vector<long long> a_vec;
 
 
-	
-	n_lon=50;
-	for(i_lon=0;i_lon<n_lon;i_lon++)
+	scanf("%lld",&n_lon);
+	while(n_lon && n_lon>4)
 	{
-		a_vec.push_back(100-n_lon);
+		if(n<10&&n<1)
+		{
+			break;
 	
+		}
+		printf("%lld",n_lon);
+		n_lon-=1;
+
 	}
-	sort(a_vec.end(),a_vec.begin());
 	return 0;
 }
