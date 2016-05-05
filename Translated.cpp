@@ -7,14 +7,18 @@ using namespace std;
 
 int main()
 {
-	string n;
+	long long j_lon;
+	long long i_lon;
 
-	n=4;
-	if(n==4)
+
+	for(i_lon=0;i_lon<100;i_lon++)
 	{
-		n="FOUR";
-	
+		for(j_lon=0;j_lon<1000;j_lon++)
+		{
+			printf("%lld",i_lon);
+
+		}
+
 	}
-	cout<<n;
 	return 0;
 }

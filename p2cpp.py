@@ -1,7 +1,7 @@
 import re
 
 def idType(value):
-        z=re.split("\* | + | - | / | %",value)[0]
+        z=re.split("\* | + | - | / | % | \*\*",value)[0]
         if z in ids:
                 return ids[z]
         try:
@@ -14,20 +14,72 @@ def idType(value):
                 return 'double'
         except ValueError:
                 return 'string'
-
-
+def vmapX(x):
+        #if(x==''):
+         #       return 0
+        pl=re.split('\(|\)',x)
+        pl=[z for z in pl if z][0]
+        print x
+        if str(x).isdigit() or x[0]=="\"" or x[0]=="\'" :
+                return str(x)
+        try:
+                return vmap[x]
+        except:
+                return 0
+def parseExp(exp):
+        p=''
+        op = re.split('[a-zA-Z0-9]|==|<=|<|!=|>|>=|\"',exp)
+        op=[x for x in op if x]
+        print op
+        exp = re.split(" && | \|\| | ^ ",exp)
+        i=0
+        for x in exp:
+                tokens=re.split('(==|<=|<|!=|>|>=)',x)
+                p+= vmapX(tokens[0])+tokens[1]+vmapX(tokens[2])
+                if(i<len(exp)-1):
+                        p+=op[i]
+                        i+=1
+        return p
+def parseArith(exp):
+        p=''
+        exp="".join(exp.split())
+        n=re.split('[(|)|+|\-|\*\*|/|%|\Intel*]',exp)
+        op=re.split('[a-zA-Z0-9.]|"',exp)
+        op=[x for x in op if x]
+        print op, "yo"
+        i=0
+        if(op[0]!='' and '(' in op[0]):
+            print("brac")
+            p+=op[0]
+            op=op[1:]
+            print op
+        n = [z for z in n if z]
+        print n
+        for x in n:
+                if(str(vmapX(x)).isdigit()):
+                        p+=x
+                else:
+                        p+=str(vmapX(x))
+                if(i<len(n)-1):
+                        p+=op[i]
+                        i+=1
+        return p
 inp=open('toTranslate.py','r')
 out=open('Translated.cpp','w')
 out.write("#include <iostream>\n#include <vector>\n#define True 1\n#define False 0\n\nusing namespace std;\n\n")
 
 loop=0
 ids={}
+vmap={}
 tab=''
 res=''
 linecount=0
-god=1
+addNl=0
 
 for i in inp:
+        if(i[:-1]=="#\\n"):
+                addNl=1
+                continue
         res+='\t'
         tabCount = i.count("\t")
         quotesCount=0
@@ -49,13 +101,14 @@ for i in inp:
                         
                 elif tabCount < loop: #if nesting ##dont trust
                         while tabCount < loop:
-                                res+=("\n\t"+tab[1:]+"}\n"+tab[1:-1])
+                                res+=("\n\t"+tab[1:]+"}\n\t"+tab[1:-1])
                                 tab=tab[1:]
                                 loop-=1
         i="".join(i.strip())
         i+='\n'
         #indentation management end
-#print start
+
+        #print start
         tt=''
         
 
@@ -70,22 +123,31 @@ for i in inp:
                                 try:
                                         pr=pr.split('[')
                                         pr=pr[0]
-                                        if ids[pr]=='long long':
+                                        if ids[vmap[pr]]=='long long':
                                                 tt='%lld'
-                                        elif ids[pr]=='long long[]':
+                                        elif ids[vmap[pr]]=='long long[]':
                                                 tt='%lld'
-                                        elif ids[pr]=='double':
+                                        elif ids[vmap[pr]]=='double':
                                                 tt='%f'
-                                        elif ids[pr]=='string':
+                                        elif ids[vmap[pr]]=='string':
                                                 tt="%s"
                                 except:
                                         pass
                                 if(tt!="%s"):
-                                        res+='\t'+(tab+"printf("+"\"" +tt+ "\","+i[6:-2]+")" +';'+"\n") #i[6:-2] original
+                                        if vmapX(i[6:-2]):
+                                                #long longs and doubles
+                                                res+=(tab+"printf("+"\"" +tt+ "\","+vmapX(i[6:-2])+")" +';'+"\n") 
+                                        else:
+                                                #arrays
+                                                arr=(i[6:-2]).split('[')
+                                                res+=tab+"cout<<"+vmapX(arr[0])+"["+vmapX(arr[1].split(']')[0])+"];\n"
                                 else:
-                                        res+='\t'+tab+"cout<<"+i[6:-2]+";\n"
+                                        #strings
+                                        res+=tab+"cout<<"+vmap[i[6:-3]]+";\n"
                         else: #print('')
                                 res+=(tab+"printf("+"\"" +i[7:-3]+ "\")" +';'+"\n")
+                if(addNl==1):
+                        res+="\t"+tab+"printf(\"\\n\");\n"     
                 continue
         #print end
 
@@ -95,8 +157,6 @@ for i in inp:
         i=i.replace(" ","")
         for x in range(len(sp)):
                 if sp[x]=='=':
-                                #ids(sp[:x])=idType((sp[x+1:-1]))
-                                
                         if sp[x+1]=='=' or sp[x-1]=='!' or sp[x-1]=='<' or sp[x-1]=='>':
                                 #res+=tab+sp+";\n"
                                 break
@@ -107,66 +167,67 @@ for i in inp:
                                 break
                         # handle x+=y type of events end
                         y=y[0]
-                                
-
-                        print y
-                        
-                        #if(len(i[x+1:-1].split("*"))==2):
-                        #       ids(i[:x])=idType(i[x+1:-1].split("*")[0])
                         if i[x+1:-1]=='[]':
-                                ids[i[:x]]='long long[]'
-                                ##########
+                                ids[i[:x]+"_vec"]='long long[]'        ##Check if already exists if so modify
+                                vmap[i[:x]]=i[:x]+"_vec"
+                                res+="\n"
                         elif i[x+1:x+7]=='str(input(':
-                                ids[i[:x]]='string'
-                                res+=tab+"getline(cin,"+ i[:x]+");\n"
+                                ids[i[:x]+"_str"]='string'
+                                vmap[i[:x]]=i[:x]+"_str"
+                                res+=tab+"getline(cin,"+ vmap[i[:x]]+");\n"
                         elif i[x+1:len("input(")+x+1]=='input(':
-                                ids[i[:x]]='long long'
-                                res+=tab+"scanf(\"%lld\",&"+ i[:x]+");\n"
+                                ids[i[:x]+"_lon"]='long long'
+                                vmap[i[:x]]=i[:x]+"_lon"
+                                res+=tab+"scanf(\"%lld\",&"+ vmap[i[:x]]+");\n"
                         elif i[x+1:x+13]=='float(input(':
-                                ids[i[:x]]='double'
-                                res+=tab+"scanf(\"%f\",&"+ i[:x]+");\n"
+                                ids[i[:x]+"_dou"]='double'
+                                vmap[i[:x]]=i[:x]+"_dou"
+                                res+=tab+"scanf(\"%f\",&"+ vmap[i[:x]]+");\n"
                         else:
                                 if i[x+1]=='\'' or i[x+1]=='\"':
                                         if i[x-1]!='+':
-                                                ids[i[:x]]=str(idType(i[x+1:]))
-                                                res+=tab+i[:x]+"=\""+i[x+2:-2]+"\";\n"  #'strcpy('+i[:x]+','+"\""+i[x+2:-2]+"\""+');\n'
+                                                ids[i[:x]+"_"+str(idType(i[x+1:]))[:3]]=str(idType(i[x+1:]))
+                                                vmap[i[:x]]=i[:x]+"_"+str(idType(i[x+1:]))[:3]
+                                                res+=tab+vmap[i[:x]]+"=\""+i[x+2:-2]+"\";\n"
                                         elif i[x-1]=='+':
-                                                res+=tab+i[:x]+"=\""+i[x+2:-2]+"\";\n"
+                                                res+=tab+vmap[i[:x]]+"=\""+i[x+2:-2]+"\";\n"
                                 elif i[x+1].isdigit()==True:
-                                        ids[y[:x]]=str(idType(i[x+1:]))
-                                        res+=tab+sp+";\n"
+                                        ids[y[:x]+"_"+str(idType(i[x+1:]))[:3]]=str(idType(i[x+1:]))
+                                        vmap[i[:x]]=i[:x]+"_"+str(idType(i[x+1:]))[:3]
+                                        res+=tab+vmap[i[:x]]+"="+i[x+1:-1]+";\n"
                                 else :
-                                        pl = re.split(r'[*+-/%]',i[x+1:-1])[0]
-                                        if pl in ids:
-                                                if ids[pl]=='double' or ids[pl]=='long long' or ids[pl]=='string':
-                                                        ids[i[:x]]=ids[pl]
-                                                        res+=tab+i[:-1]+";\n"
+                                        pl=re.split('\(|\)',i[x+1:-1])
+                                        pl=[z for z in pl if z][0]
+                                        pl = re.split(r'[*+-/%]',pl)[0]
+                                        if vmap[pl] in ids:
+                                                if ids[vmap[pl]]=='double' or ids[vmap[pl]]=='long long' or ids[vmap[pl]]=='string':
+                                                        print i[:x]
+                                                        vmap[i[:x]]=i[:x]+"_"+ids[vmap[pl]][:3]
+                                                        ids[vmap[i[:x]]]=ids[vmap[pl]]
+                                                        #print parseArith(i[x+1:-1])
+                                                        res+=tab+(vmap[i[:x]])+"="+parseArith(i[x+1:-1])+";\n"                   #############
                                                 else:
                                                         pass
                                         else:
                                                 try:
-                                                        ids[i[:x]] = idType(i[x+1:-1])
+                                                        ids[vmap[i[:x]]] = idType(vmap[i[x+1:-1]])
                                                 except:
                                                         pass
                                                 res+=tab+i[:-1]+";\n"
                                                 
-
-
-
-
-
-
         #id creator and assignment and comparison end
 
         #for loop start
         i=f
         if i[:len('for')]=="for":
                 f=i.split(" ")
-                if f[3][6:-3] in ids:
-                        ids[f[1]]=ids[f[3][6:-3]]
+                if vmapX(f[3][6:-3]) in ids:
+                        vmap[f[1]]=f[1]+"_lon"
+                        ids[vmap[f[1]]]=ids[vmap[f[3][6:-3]]]
                 else:
-                        ids[f[1]]=str(idType(f[3][6:-3]))
-                res+=(tab+"for("+f[1]+"=0;"+f[1]+"<"+f[3][6:-3]+";"+f[1]+"++)"+"\n"+tab+"{\n")
+                        vmap[f[1]]=f[1]+"_lon"
+                        ids[vmap[f[1]]]=str(idType(f[3][6:-3]))
+                res+=(tab+"for("+vmap[f[1]]+"=0;"+vmap[f[1]]+"<"+vmapX(f[3][6:-3])+";"+vmap[f[1]]+"++)"+"\n"+tab+"\t{\n")
                 loop+=1
                 tab+='\t'
         #for loop end
@@ -185,7 +246,9 @@ for i in inp:
                 i=i[::-1]
                 i=i.replace(")","",1)
                 i=i[::-1]
-                res+=tab+"if("+i[len('if')+1:-2]+")\n\t"+tab+"{\n"
+                #print i[len('if('):-2]
+                #print parseExp(i[len('if('):-2])
+                res+="\t"+tab+"if("+parseExp(i[len('if('):-2])+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 i=i[len('if')+1:-2] #experimental
@@ -215,18 +278,19 @@ for i in inp:
                 res+=tab+i[:-1]+";\n"
         #break & continue end
 
-    #special ops
+        #special ops
 
-        #out.write("$$",zzz,"$$")
         zzz=i.split('.')
         try:
                 if zzz[1][:-1]=="append(int(input()))":
                         ids['temp']='long long'
                         res+=tab+"scanf(\"%lld\",&temp);\n"+tab+zzz[0]+'.push_back(temp);\n'
                 elif zzz[1][:len("append(")]=="append(":
-                        res+=tab+zzz[0]+'.push_back('+zzz[1][len("append("):-1]+';\n'
+                        res+=tab+vmapX(zzz[0])+'.push_back('+vmapX(zzz[1][len("append("):-2])+');\n'
         
         except: pass
+        #special ops end
+        
 while loop!=0:
         res+=("\n\t"+tab[1:]+"}\n")
         tab=tab[1:]
@@ -241,6 +305,6 @@ for key,value in ids.items():
                 out.write("\t"+value+" "+key+";\n")
         else:
                 out.write("\t"+value+" "+key+"[BUFF];\n")
-out.write('\n')
+out.write('\n\n')
 out.write(res)
 out.close()

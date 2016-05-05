@@ -1,4 +1,3 @@
-n=4
-if(n==4):
-	n="FOUR"
-print(n)
+for i in range(100):
+	for j in range(1000):
+		print(i)
