@@ -8,20 +8,14 @@ using namespace std;
 
 int main()
 {
-	long long n_lon;
+	double F_dou;
+	double C_dou;
 
 
-	scanf("%lld",&n_lon);
-	while(n_lon && n_lon>4)
-	{
-		if(n<10&&n<1)
-		{
-			break;
-	
-		}
-		printf("%lld",n_lon);
-		n_lon-=1;
-
-	}
+	printf("Enter temperature in degree Celcius : ");
+	scanf("%f",&C_dou);
+	printf("In degree Farenheit : ");
+	F_dou=((9*C_dou/5)+32;
+	printf("%f",F_dou);
 	return 0;
 }

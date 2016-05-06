@@ -31,6 +31,7 @@ def parseExp(exp):
         print exp
         n=re.split('[(|)|+|\-|\*\*|/|%|\*]',exp)
         n="".join(n)
+        print n
         op = re.split('[a-zA-Z0-9]|==|<=|<|!=|>|>=|\"',n)
         op=[x for x in op if x]
         exp = re.split(" && | \|\| | ^ ",exp)
@@ -69,6 +70,10 @@ def parseArith(exp):
                 if(iii<len(n)-1):
                         p+=op[iii]
                         iii+=1
+        
+        while iii!=len(n)-1:
+                p+=op[iii]
+                iii+=1
         return p
 inp=open('toTranslate.py','r')
 out=open('Translated.cpp','w')
@@ -159,7 +164,9 @@ for i in inp:
                                                 #arrays
                                                 arr=(i[6:-2]).split('[')
                                                 if(len(arr)==1):
-                                                        res+=tab+"print(\"%lld\","+parseArith(i[6:-2])+");\n"
+                                                        res+=tab+"printf(\"%lld\","+parseArith(i[6:-2])+");\n"
+                                                        if(addNl==1):
+                                                                res+="\t"+tab+"printf(\"\\n\");\n"
                                                         continue
                                                 res+=tab+"cout<<"+vmapX(arr[0])+"["+vmapX(arr[1].split(']')[0])+"];\n"
                                 else:
@@ -221,17 +228,19 @@ for i in inp:
                                         vmap[i[:x]]=i[:x]+"_"+str(idType(i[x+1:]))[:3]
                                         res+=tab+vmap[i[:x]]+"="+i[x+1:-1]+";\n"
                                 else :
-                                        pl=re.split('\(|\)',i[x+1:-1])
-                                        pl=[z for z in pl if z][0]
-                                        pl = re.split(r'[*+-/%]',pl)[0]
-                                        if vmap[pl] in ids:
-                                                if ids[vmap[pl]]=='double' or ids[vmap[pl]]=='long long' or ids[vmap[pl]]=='string':
-                                                        vmap[i[:x]]=i[:x]+"_"+ids[vmap[pl]][:3]
-                                                        ids[vmap[i[:x]]]=ids[vmap[pl]]
-                                                        #print parseArith(i[x+1:-1])
-                                                        res+=tab+(vmap[i[:x]])+"="+parseArith(i[x+1:-1])+";\n"                   #############
-                                                else:
-                                                        pass
+                                        plL=re.split('\(|\)',i[x+1:-1])
+                                        plL=[z for z in plL if z][0]
+                                        plL = re.split(r'[*+-/%]',plL)
+                                        for pl in plL:
+                                                if vmapX(pl) in ids:
+                                                        if ids[vmap[pl]]=='double' or ids[vmap[pl]]=='long long' or ids[vmap[pl]]=='string':
+                                                                vmap[i[:x]]=i[:x]+"_"+ids[vmap[pl]][:3]
+                                                                ids[vmap[i[:x]]]=ids[vmap[pl]]
+                                                                #print parseArith(i[x+1:-1])
+                                                                res+=tab+(vmap[i[:x]])+"="+parseArith(i[x+1:-1])+";\n"                   #############
+                                                                break
+                                                        else:
+                                                                pass
                                         else:
                                                 try:
                                                         ids[vmap[i[:x]]] = idType(vmap[i[x+1:-1]])

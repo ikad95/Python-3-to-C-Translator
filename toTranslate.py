@@ -1,6 +1,5 @@
-n=input()
-while(n and n>4):
-	if(n<10 and n<1):
-		break
-	print(n)
-	n-=1
+print("Enter temperature in degree Celcius : ")
+C=float(input())
+print("In degree Farenheit : ")
+F=((9*C/5)+32)
+print(F)
