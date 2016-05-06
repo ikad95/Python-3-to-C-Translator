@@ -28,10 +28,8 @@ def vmapX(x):
                 return 0
 def parseExp(exp):
         p=''
-        print exp
         n=re.split('[(|)|+|\-|\*\*|/|%|\*]',exp)
         n="".join(n)
-        print n
         op = re.split('[a-zA-Z0-9]|==|<=|<|!=|>|>=|\"',n)
         op=[x for x in op if x]
         exp = re.split(" && | \|\| | ^ ",exp)
@@ -70,8 +68,7 @@ def parseArith(exp):
                 if(iii<len(n)-1):
                         p+=op[iii]
                         iii+=1
-        
-        while iii!=len(n)-1:
+        while iii!=len(op):
                 p+=op[iii]
                 iii+=1
         return p
@@ -137,7 +134,10 @@ for i in inp:
         tt=''
         if i[:len('print')]=="print":
                 if(i[len("print")]==" "):
-                        i=i.replace(" ","",1)
+                        ws=0
+                        while(i[5+ws]==" "):
+                                ws+=1
+                        i=i.replace(" ","",ws)
                 if i[5:6]=="(":  #print()
                         if i[6:7]!="\'" and i[6:7]!="\"": #print(x)
                                 pr=i[6:-2]
@@ -179,7 +179,7 @@ for i in inp:
                 continue
         #print end
 
-        #id creator and assignment and comparison start
+        #id creator, assignment and comparison start
         sp=i[:-1].replace(" ","")
         f=i
         i=i.replace(" ","")
@@ -248,7 +248,7 @@ for i in inp:
                                                         pass
                                                 res+=tab+i[:-1]+";\n"
                                                 
-        #id creator and assignment and comparison end
+        #id creator, assignment and comparison end
 
         #for loop start
         i=f
@@ -281,7 +281,7 @@ for i in inp:
                 i=i[::-1]
                 #print i[len('if('):-2]
                 #print parseExp(i[len('if('):-2])
-                res+=tab+"if("+parseArith(i[len('if('):-2])+")\n\t"+tab+"{\n"
+                res+=tab+"if("+parseExp(i[len('if('):-2])+")\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
                 i=i[len('if')+1:-2] #experimental
@@ -290,7 +290,7 @@ for i in inp:
                 i=i[::-1]
                 i=i.replace(")","",1)
                 i=i[::-1]
-                res+=tab+'else if('+i[len('elif')+1:-2]+')\n\t'+tab+"{\n"
+                res+=tab+'else if('+parseExp(i[len('elif')+1:-2])+')\n\t'+tab+"{\n"
                 loop+=1
                 tab+='\t'
         if i[:len('else')] == "else":
@@ -298,7 +298,7 @@ for i in inp:
                 i=i[::-1]
                 i=i.replace(")","",1)
                 i=i[::-1]
-                res+=tab+"else"+i[len('else')+1:-2]+"\n\t"+tab+"{\n"
+                res+=tab+"else"+parseExp(i[len('else')+1:-2])+"\n\t"+tab+"{\n"
                 loop+=1
                 tab+='\t'
         #if else statement end

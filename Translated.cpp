@@ -12,10 +12,15 @@ int main()
 	double C_dou;
 
 
-	printf("Enter temperature in degree Celcius : ");
+	printf("Enter temperature in degree Celcius : \n");
 	scanf("%f",&C_dou);
-	printf("In degree Farenheit : ");
-	F_dou=((9*C_dou/5)+32;
+	printf("In degree Farenheit : \n");
+	F_dou=(9*C_dou/5)+32;
 	printf("%f",F_dou);
+	if(C_dou>40)
+	{
+		printf("You're in Durgapur!");
+
+	}
 	return 0;
 }
