@@ -1,3 +1,8 @@
+
+
+
+
+
 NEWS!!! Dynamic typing is added!!!!!!!
 
 Note:
@@ -17,15 +22,16 @@ The process of adding dynamic type checking support has already started! Until t
 
 So you'll be able to do this 
 
-In Python -
+Python code -
 
-n=4
-if(n==4):
-	n="FOUR"
-print(n)
+	n=4
+	if(n==4):
+		n="FOUR"
+	print(n)
 
 
-Translated C++ code will look like this - 
+Translated C++ code
+- 
 
 	int main()
 	{
@@ -44,9 +50,4 @@ Translated C++ code will look like this -
  
 Change log 2:
 sort in increasing and decreasing order added!
-if a is a list use a.sort() and a.sort(reverse=True) #standard python function
-
-
-In the future:
-string formatting needs a lot of work!
-will leave it for now as multiple print() statement can be uses as of now
+if 
