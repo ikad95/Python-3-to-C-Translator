@@ -8,9 +8,7 @@ Note:
 How to use:
 
 	In the directory write your code in toTranslate.py
-	run py2cpp.py
-	voila! The C++ code should be in Translated.cpp file
-
+	and run py2cpp.py
 
 Change Log 1:
 In the future : (ADDED NOW!)
@@ -29,20 +27,20 @@ print(n)
 
 Translated C++ code will look like this - 
 
-int main()
-{
-	long long n_ll;
-	string n_str;
-
-	n_ll=4;
-	if(n_ll==4)
+	int main()
 	{
-		n_str="FOUR";
+		long long n_ll;
+		string n_str;
 
+		n_ll=4;
+		if(n_ll==4)
+		{
+			n_str="FOUR";
+
+		}
+		cout<<n_str;
+		return 0;
 	}
-	cout<<n_str;
-	return 0;
-}
  
 Change log 2:
 sort in increasing and decreasing order added!
