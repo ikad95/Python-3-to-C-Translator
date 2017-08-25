@@ -129,7 +129,13 @@ for i in inp:
                           
         except: pass
         #special ops end
-        
+		
+        #def start
+        if i[:len('def')]=="def":
+            def_start = 1
+            print("def found")
+        #def end
+
         #print start
         tt=''
         if i[:len('print')]=="print":
@@ -151,7 +157,7 @@ for i in inp:
                                         elif ids[vmap[pr]]=='long long[]':
                                                 tt='%lld'
                                         elif ids[vmap[pr]]=='double':
-                                                tt='%f'
+                                                tt='%lf'
                                         elif ids[vmap[pr]]=='string':
                                                 tt="%s"
                                 except:
@@ -210,7 +216,7 @@ for i in inp:
                         elif i[x+1:x+13]=='float(input(':
                                 ids[i[:x]+"_dou"]='double'
                                 vmap[i[:x]]=i[:x]+"_dou"
-                                res+=tab+"scanf(\"%f\",&"+ vmap[i[:x]]+");\n"
+                                res+=tab+"scanf(\"%lf\",&"+ vmap[i[:x]]+");\n"
                         elif i[x-1]=="]":
                                 m=i.split('[')
                                 n=m[1].split(']')

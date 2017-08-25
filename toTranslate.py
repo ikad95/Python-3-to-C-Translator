@@ -5,3 +5,5 @@ F=(9*C/5)+32
 print(F)
 if(C>40):
 	print("You're in Durgapur!")
+for i in range(10000):
+	print("hello world")
